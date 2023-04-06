@@ -1,3 +1,4 @@
+import { isObject } from "../shared"
 import { track, trigger } from "./effect"
 
 export function reactive(raw) {

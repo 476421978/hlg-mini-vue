@@ -31,4 +31,34 @@ describe("effect", () => {
     expect(foo).toBe(12)
     expect(r).toBe("foo")
   })
+
+  it("scheduler", () => {
+    let dummy
+    let run: any
+
+    const scheduler = jest.fn(() => {
+      run = runner
+    })
+
+    const obj = reactive({
+      foo: 1,
+    })
+
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+      },
+      { scheduler }
+    )
+
+    expect(scheduler).not.toHaveBeenCalled() // 第一次没有执行
+    expect(dummy).toBe(1)
+
+    // 执行trigger
+    obj.foo++
+    expect(scheduler).toHaveBeenCalledTimes(1) // 被执行1次
+
+    run()
+    expect(dummy).toBe(2)
+  })
 })

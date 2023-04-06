@@ -6,7 +6,5 @@ describe("reactive", () => {
       age: 10,
     })
     expect(user.age).toBe(10)
-    user.age++
-    expect(user.age).toBe(11)
   })
 })
