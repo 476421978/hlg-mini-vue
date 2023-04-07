@@ -1,18 +1,9 @@
-import { get, readonlyGet, set } from "./baseHandles"
+import { mutableHandles, readonlyHandles } from "./baseHandles"
 
 export function reactive(raw) {
-  return new Proxy(raw, {
-    get,
-    set,
-  })
+  return new Proxy(raw, mutableHandles)
 }
 
 export function readonly(raw) {
-  return new Proxy(raw, {
-    get: readonlyGet,
-    set(target, key, value) {
-      console.warn(`key:${key} set失败 因为 target 是 readonly`, target)
-      return true
-    },
-  })
+  return new Proxy(raw, readonlyHandles)
 }
