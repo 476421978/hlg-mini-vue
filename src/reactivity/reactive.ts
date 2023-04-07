@@ -1,4 +1,4 @@
-import { mutableHandles, readonlyHandles } from "./baseHandles"
+import { mutableHandles, readonlyHandles, shallowReadonlyHandles } from "./baseHandles"
 
 export function reactive(raw) {
   return new Proxy(raw, mutableHandles)
@@ -6,6 +6,10 @@ export function reactive(raw) {
 
 export function readonly(raw) {
   return new Proxy(raw, readonlyHandles)
+}
+
+export function shallowReadonly(raw) {
+  return new Proxy(raw, shallowReadonlyHandles)
 }
 
 // 利用get获取的key信息判断
