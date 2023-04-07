@@ -1,16 +1,19 @@
 import { extend } from "../shared"
 
 let activeEffect // 保留ReactiveEffect的实例
-let shouldTrack
+let shouldTrack // 是否收集fn
 class ReactiveEffect {
   private _fn: any
   deps = []
+  active = true // 优化stop之后不再收集
+  onStop?: () => void
   public scheduler: Function | undefined
   constructor(fn, scheduler?: Function) {
     this._fn = fn
     this.scheduler = scheduler
   }
   run() {
+    if (!this.active) return this._fn()
     // 应该收集
     shouldTrack = true
     activeEffect = this
@@ -20,12 +23,22 @@ class ReactiveEffect {
     return r
   }
   stop() {
-    // 删除当前dep的effect（runner.effect的this）
-    this.deps.forEach((dep: any) => {
-      dep.delete(this)
-    })
-    this.deps.length = 0
+    if (this.active) {
+      // 删除当前dep的effect（runner.effect的this）
+      cleanupEffect(this)
+      if (this.onStop) {
+        this.onStop()
+      }
+      this.active = false
+    }
   }
+}
+
+function cleanupEffect(effect) {
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect)
+  })
+  effect.deps.length = 0
 }
 
 const targetMap = new Map()
@@ -79,7 +92,7 @@ function triggerEffects(dep) {
 export function effect(fn, options: any = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler)
 
-  extend(_effect, options)
+  extend(_effect, options) // 枚举复制
 
   _effect.run()
 
