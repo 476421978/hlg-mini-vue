@@ -1,4 +1,4 @@
-import { effect } from "../effect"
+import { effect, stop } from "../effect"
 import { reactive } from "../reactive"
 
 describe("effect", () => {
@@ -60,5 +60,29 @@ describe("effect", () => {
 
     run()
     expect(dummy).toBe(2)
+  })
+
+  it("stop", () => {
+    let dummy
+    const obj = reactive({
+      prop: 1,
+    })
+
+    const runner = effect(() => {
+      dummy = obj.prop
+    })
+
+    obj.prop = 2
+
+    expect(dummy).toBe(2)
+    stop(runner)
+
+    obj.prop++ // 触发get set会重新收集，所以应该要禁止收集不然执行fn，dummy就会被更新，增加shouldTrack判断只收集一次
+
+    expect(dummy).toBe(2) // obj.prop = 3 , runner的stop已经删除dep，所以不会执行fn
+
+    runner() // 重新执行fn
+
+    expect(dummy).toBe(3)
   })
 })
