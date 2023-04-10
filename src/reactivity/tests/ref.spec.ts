@@ -1,5 +1,5 @@
 import { effect } from "../effect"
-import { isRef, ref, unRef } from "../ref"
+import { proxyRefs, isRef, ref, unRef } from "../ref"
 
 describe("ref", () => {
   it("happy path", () => {
@@ -52,5 +52,28 @@ describe("ref", () => {
     const a = ref(1)
     expect(unRef(a)).toBe(1)
     expect(unRef(1)).toBe(1)
+  })
+
+  it("proxyRefs", () => {
+    const user = {
+      age: ref(10),
+      name: "name",
+    }
+    const proxyUser = proxyRefs(user)
+    // template 中使用到proxyRefs可以直接读取.age获取value值
+    expect(user.age.value).toBe(10)
+    expect(proxyUser.age).toBe(10)
+    expect(proxyUser.name).toBe("name")
+
+
+    // 直接赋值数字
+    proxyUser.age = 20
+    expect(user.age.value).toBe(20)
+    expect(proxyUser.age).toBe(20)
+
+    // 直接赋值ref
+    proxyUser.age = ref(10)
+    expect(proxyUser.age).toBe(10)
+    expect(user.age.value).toBe(10)
   })
 })
