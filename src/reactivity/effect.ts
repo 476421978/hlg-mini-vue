@@ -61,7 +61,7 @@ export function track(target, key) {
   trackEffects(dep)
 }
 
-function trackEffects(dep) {
+export function trackEffects(dep) {
   if (dep.has(activeEffect)) return
   dep.add(activeEffect)
   // 需要收集进deps
@@ -69,7 +69,7 @@ function trackEffects(dep) {
 }
 
 // 判断是否需要收集
-function isTracking() {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined
 }
 
@@ -79,7 +79,7 @@ export function trigger(target, key) {
   triggerEffects(dep)
 }
 
-function triggerEffects(dep) {
+export function triggerEffects(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler()
