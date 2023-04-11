@@ -2,7 +2,7 @@ import { extend } from "../shared"
 
 let activeEffect // 保留ReactiveEffect的实例
 let shouldTrack // 是否收集fn
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any
   deps = []
   active = true // 优化stop之后不再收集
