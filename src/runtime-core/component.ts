@@ -21,7 +21,7 @@ function setupStatefulComponent(instance: any) {
   const { setup } = Component
   if (setup) {
     // return function || object
-    const setupResult = setup() // return { msg: "mini-vue"}
+    const setupResult = setup()
     handleSetupResult(instance, setupResult)
   }
 }
@@ -36,6 +36,6 @@ function handleSetupResult(instance: any, setupResult: any) {
 function finishComponentSetup(instance: any) {
   const Component = instance.type
   if (Component.render) {
-    instance.render = Component.render // return h("div", "hi" + this.msg)
+    instance.render = Component.render
   }
 }
