@@ -18,6 +18,20 @@ export function setupComponent(instance) {
 // 初始化操作
 function setupStatefulComponent(instance: any) {
   const Component = instance.type
+  // ctx
+  instance.proxy = new Proxy(
+    {},
+    {
+      get(target, key) {
+        // setupState(setupResult -> setup())
+        const { setupState } = instance
+        if (key in setupState) {
+          return setupState[key]
+        }
+      },
+    }
+  )
+
   const { setup } = Component
   if (setup) {
     // return function || object
