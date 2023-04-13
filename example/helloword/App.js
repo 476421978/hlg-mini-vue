@@ -1,9 +1,11 @@
 import { h } from "../../lib/guide-mini-vue.esm.js"
+window.self
 export const App = {
   // .vue
   // <template></template>
   // render
   render() {
+    window.self = this // 方便调试
     // ui
     return h(
       "div",

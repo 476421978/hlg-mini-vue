@@ -22,7 +22,8 @@ function processElement(vnode: any, container: any) {
 
 // 元素挂载
 function mountedElement(vnode: any, container: any) {
-  const el = document.createElement(vnode.type)
+  // el -> element -> div
+  const el = (vnode.el = document.createElement(vnode.type))
 
   const { children } = vnode
   if (typeof children === "string") {
@@ -51,16 +52,19 @@ function processComponent(vnode: any, container: any) {
 }
 
 // 组件挂载
-function mountedComponent(vnode: any, container: any) {
-  let instance = createComponentInstance(vnode) // 节点创建
-  setupComponent(instance)
-  setupRenderEffect(instance, container)
+function mountedComponent(initialVnode: any, container: any) {
+  let instance = createComponentInstance(initialVnode) // 节点创建
+  setupComponent(instance) // 初始化组件
+  setupRenderEffect(instance, initialVnode, container) // 处理组件 判断类型
 }
 
-function setupRenderEffect(instance: any, container: any) {
+function setupRenderEffect(instance: any, initialVnode: any, container: any) {
   const { proxy } = instance
   const subTree = instance.render.call(proxy)
   // vnode -> patch
   // vnode -> element -> mountElement
   patch(subTree, container)
+
+  //element->mounted mountedElement完成后再次赋值$el (self.$el可以获取dom信息)
+  initialVnode.el = subTree.el
 }
