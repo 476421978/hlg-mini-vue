@@ -29,7 +29,6 @@ function mountedElement(vnode: any, container: any) {
 
   const { children, shapeFlag } = vnode
   // children
-  debugger
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     // text_children
     el.textContent = children
