@@ -39,7 +39,15 @@ function mountedElement(vnode: any, container: any) {
 
   const { props } = vnode
   for (const key in props) {
-    el.setAttribute(key, props[key])
+    const val = props[key]
+    // on + Event name
+    const isOn = (key: string) => /^on[A-Z]/.test(key)
+    if (isOn(key)) {
+      const eventName = key.slice(2).toLocaleLowerCase() // 去掉on转小写
+      el.addEventListener(eventName, val)
+    } else {
+      el.setAttribute(key, val)
+    }
   }
   container.append(el)
 }
