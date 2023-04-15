@@ -1,3 +1,4 @@
+import { isObject } from "../shared/index"
 import {
   mutableHandles,
   readonlyHandles,
@@ -11,19 +12,23 @@ export const enum ReactiveFlags {
 }
 
 export function reactive(raw) {
-  return createActive(raw, mutableHandles)
+  return createReactiveObject(raw, mutableHandles)
 }
 
 export function readonly(raw) {
-  return createActive(raw, readonlyHandles)
+  return createReactiveObject(raw, readonlyHandles)
 }
 
 export function shallowReadonly(raw) {
-  return createActive(raw, shallowReadonlyHandles)
+  return createReactiveObject(raw, shallowReadonlyHandles)
 }
 
-function createActive(raw: any, baseHandles) {
-  return new Proxy(raw, baseHandles)
+function createReactiveObject(target: any, baseHandles) {
+  if(!isObject(target)) {
+    console.warn(`target ${target} 必须是一个对象`)
+    return target
+  }
+  return new Proxy(target, baseHandles)
 }
 
 // 检查一个对象是否是由 reactive() 或 shallowReactive() 创建的代理。

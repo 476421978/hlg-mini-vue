@@ -1,4 +1,5 @@
 import { h } from "../../lib/guide-mini-vue.esm.js"
+import { Foo } from "./Foo.js"
 window.self
 export const App = {
   // .vue
@@ -10,7 +11,8 @@ export const App = {
     return h(
       "div",
       {
-        id: "root2",
+        id: "root",
+        class: ["red"],
         onClick() {
           console.log("click")
         },
@@ -20,11 +22,13 @@ export const App = {
       },
       // setupState
       // $el
-      "hi," + this.msg // 要通过this访问msg(render的this要绑定成setup的this指向)
-      // [
-      //   h("p", { id: "p1", class: ['red']}, "p1"),
-      //   h("p", { id: "p2", class: ['blue'] }, "p2"),
-      // ]
+      // "hi," + this.msg // 要通过this访问msg(render的this要绑定成setup的this指向)
+      [
+        h("div", {}, "hi," + this.msg),
+        h(Foo, {
+          count: 1,
+        }),
+      ]
     )
   },
   setup() {
