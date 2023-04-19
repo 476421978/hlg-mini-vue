@@ -1,16 +1,19 @@
 import { h } from "../../lib/guide-mini-vue.esm.js"
 
 export const Foo = {
-  setup(props) {
-    // props.count
-    console.log(props)
-
-    // 3.
-    // shallow readonly
-    props.count++
-    console.log(props)
-  },
   render() {
-    return h("div", {}, "foo:" + this.count) // publicInstanceProxyHandlers利用proxy读取
+    const btn = h("button", { onClick: this.emitAdd }, "emitAdd")
+    const foo = h("p", {}, "foo")
+    return h("div", {}, [btn, foo])
+  },
+  setup(props, { emit }) {
+    const emitAdd = () => {
+      console.log("emitAdd")
+      emit("add", 1, 2)
+    }
+
+    return {
+      emitAdd,
+    }
   },
 }
