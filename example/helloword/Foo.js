@@ -1,19 +1,28 @@
-import { h } from "../../lib/guide-mini-vue.esm.js"
+import { h, renderSlots } from "../../lib/guide-mini-vue.esm.js"
 
 export const Foo = {
-  render() {
-    const btn = h("button", { onClick: this.emitAdd }, "emitAdd")
-    const foo = h("p", {}, "foo")
-    return h("div", {}, [btn, foo])
+  setup() {
+    return {}
   },
-  setup(props, { emit }) {
-    const emitAdd = () => {
-      console.log("emitAdd")
-      emit("add", 1, 2)
-    }
+  render() {
+    const foo = h("p", {}, "foo")
+    // Foo.vnode children
+    console.log("this.$slots--->>", this.$slots)
 
-    return {
-      emitAdd,
-    }
+    // children -> vnode
+    //
+    // renderSlots
+    // 具名插槽
+    // 1.获取要渲染的元素
+    // 2.获取要渲染的位置
+    // 作用域插槽
+    const age = 18
+    return h("div", {}, [
+      renderSlots(this.$slots, "header", {
+        age,
+      }),
+      foo,
+      renderSlots(this.$slots, "footer"),
+    ])
   },
 }
