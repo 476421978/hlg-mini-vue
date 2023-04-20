@@ -20,9 +20,9 @@ export function createVnode(type, props?, children?) {
   // 0101       0000
 
   if (typeof children === "string") {
-    vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.TEXT_CHILDREN
+    vnode.shapeFlag |= ShapeFlags.TEXT_CHILDREN
   } else if (Array.isArray(children)) {
-    vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.ARRAY_CHILDREN
+    vnode.shapeFlag |= ShapeFlags.ARRAY_CHILDREN
   }
 
   // 组件 + children object

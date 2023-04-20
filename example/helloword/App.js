@@ -9,7 +9,7 @@ export const App = {
       Foo,
       {},
       {
-        header: (age) => h("p", {}, "header" + age),
+        header: ({age}) => h("p", {}, "header-" + age),
         footer: () => h("p", {}, "footer"),
       }
     )

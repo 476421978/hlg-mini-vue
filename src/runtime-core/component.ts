@@ -11,6 +11,7 @@ export function createComponentInstance(vnode) {
     setupState: {},
     props: {},
     emit: () => {},
+    slots: {}
   }
 
   component.emit = emit.bind(null, component) as any
