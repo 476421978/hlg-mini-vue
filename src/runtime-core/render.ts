@@ -4,7 +4,11 @@ import { createdAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 
 export function createRenderer(options) {
-  const { createElement, patchProp, insert } = options
+  const {
+    createElement: hostCreateElement,
+    patchProp: hostPatchProp,
+    insert: hostInsert,
+  } = options
 
   function render(vnode, container) {
     patch(vnode, container, null)
@@ -26,7 +30,6 @@ export function createRenderer(options) {
           // element [元素]类型如何处理
           processElement(vnode, container, parentComponent)
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-          0
           // component [组件]类型如何处理
           processComponent(vnode, container, parentComponent)
         }
@@ -35,7 +38,6 @@ export function createRenderer(options) {
   }
 
   function processText(vnode: any, container: any) {
-    debugger
     const { children } = vnode
     const textNode = (vnode.el = document.createTextNode(children))
     container.append(textNode)
@@ -52,7 +54,7 @@ export function createRenderer(options) {
   // 元素挂载
   function mountedElement(vnode: any, container: any, parentComponent) {
     // canvas document
-    const el = (vnode.el = createElement(vnode.type))
+    const el = (vnode.el = hostCreateElement(vnode.type))
 
     // children
     const { children, shapeFlag } = vnode
@@ -66,11 +68,11 @@ export function createRenderer(options) {
     const { props } = vnode
     for (const key in props) {
       const val = props[key]
-      patchProp(el, key, val)
+      hostPatchProp(el, key, val)
     }
 
     // append
-    insert(el, container)
+    hostInsert(el, container)
   }
 
   // 挂载子元素
