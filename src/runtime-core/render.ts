@@ -176,6 +176,86 @@ export function createRenderer(options) {
         hostRemove(c1[i].el)
         i++
       }
+    } else {
+      // 中间对比
+      let s1 = i
+      let s2 = i
+
+      const toBePatched = e2 - s2 + 1 // 待处理的新节点总数量
+      let patched = 0 // 当前处理的数量
+      const keyToNewIndexMap = new Map() // 映射查找
+
+      const newIndexToOldIndexMap = new Array(toBePatched)
+      let moved = false
+      let maxNewIndexSoFar = 0
+      for (let i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
+
+      for (let i = s2; i <= e2; i++) {
+        // 新节点数组建立映射
+        const nextChild = c2[i]
+        keyToNewIndexMap.set(nextChild.key, i)
+      }
+
+      for (let i = s1; i <= e1; i++) {
+        // 循环旧节点数组
+        const prevChild = c1[i]
+
+        if (patched >= toBePatched) {
+          // 若处理节点的次数大于toBePatched
+          hostRemove(prevChild.el)
+          continue
+        }
+
+        let newIndex
+        if (prevChild !== null) {
+          newIndex = keyToNewIndexMap.get(prevChild.key) // 查找节点映射(新节点)
+        } else {
+          // 存在则历遍对比新节点数组
+          for (let j = s2; j < e2; j++) {
+            if (isSomeVNodeType(prevChild, c2[j])) {
+              // 获取旧值在新节点的位置
+              newIndex = j
+              break
+            }
+          }
+        }
+
+        if (newIndex === undefined) { // 新节点没有则删除
+          hostRemove(prevChild.el)
+        } else { // 新节点有则移动
+          if (newIndex >= maxNewIndexSoFar) {
+            maxNewIndexSoFar = newIndex
+          } else {
+            moved = true
+          }
+
+          newIndexToOldIndexMap[newIndex - s2] = i + 1 // newIndex是从0开始的
+          patch(prevChild, c2[newIndex], container, parentComponent, null)
+          patched++
+        }
+      }
+
+      const increasingNewIndexSequence = moved
+        ? getSequence(newIndexToOldIndexMap)
+        : []
+
+      let j = increasingNewIndexSequence.length - 1
+
+      for (let i = toBePatched - 1; i >= 0; i--) {
+        const nextIndex = i + s2
+        const nextChild = c2[nextIndex]
+        const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null
+
+        if (newIndexToOldIndexMap[i] === 0) {
+          patch(null, nextChild, container, parentComponent, anchor)
+        } else if (moved) {
+          if (j < 0 || i !== increasingNewIndexSequence[j]) {
+            hostInsert(nextChild.el, container, anchor)
+          } else {
+            j--
+          }
+        }
+      }
     }
   }
 
@@ -295,4 +375,50 @@ export function createRenderer(options) {
   return {
     createApp: createdAppAPI(render),
   }
+}
+
+// 返回的是数组中子序列的索引值
+function getSequence(arr) {
+  const p = arr.slice() //  保存原始数据
+  const result = [0] //  存储最长增长子序列的索引数组
+  let i, j, u, v, c
+  const len = arr.length
+  for (i = 0; i < len; i++) {
+    const arrI = arr[i]
+    if (arrI !== 0) {
+      j = result[result.length - 1] //  j是子序列索引最后一项
+      if (arr[j] < arrI) {
+        //  如果arr[i] > arr[j], 当前值比最后一项还大，可以直接push到索引数组(result)中去
+        p[i] = j //  p记录第i个位置的索引变为j
+        result.push(i)
+        continue
+      }
+      u = 0 //  数组的第一项
+      v = result.length - 1 //  数组的最后一项
+      while (u < v) {
+        //  如果arrI <= arr[j] 通过二分查找，将i插入到result对应位置；u和v相等时循环停止
+        c = ((u + v) / 2) | 0 //  二分查找
+        if (arr[result[c]] < arrI) {
+          u = c + 1 //  移动u
+        } else {
+          v = c //  中间的位置大于等于i,v=c
+        }
+      }
+      if (arrI < arr[result[u]]) {
+        if (u > 0) {
+          p[i] = result[u - 1] //  记录修改的索引
+        }
+        result[u] = i //  更新索引数组(result)
+      }
+    }
+  }
+  u = result.length
+  v = result[u - 1]
+  //把u值赋给result
+  while (u-- > 0) {
+    //  最后通过p数组对result数组进行进行修订，取得正确的索引
+    result[u] = v
+    v = p[v]
+  }
+  return result
 }
