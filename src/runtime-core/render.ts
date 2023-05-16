@@ -211,7 +211,7 @@ export function createRenderer(options) {
           newIndex = keyToNewIndexMap.get(prevChild.key) // 查找节点映射(新节点)
         } else {
           // 存在则历遍对比新节点数组
-          for (let j = s2; j < e2; j++) {
+          for (let j = s2; j <= e2; j++) {
             if (isSomeVNodeType(prevChild, c2[j])) {
               // 获取旧值在新节点的位置
               newIndex = j
