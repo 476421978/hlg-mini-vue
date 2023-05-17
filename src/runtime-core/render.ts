@@ -2,6 +2,7 @@ import { effect } from "../reactivity/effect"
 import { EMPTY_OBJ } from "../shared"
 import { ShapeFlags } from "../shared/ShapeFlags"
 import { createComponentInstance, setupComponent } from "./component"
+import { shouldUpdateComponent } from "./componentUpdateUtils"
 import { createdAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 
@@ -220,9 +221,11 @@ export function createRenderer(options) {
           }
         }
 
-        if (newIndex === undefined) { // 新节点没有则删除
+        if (newIndex === undefined) {
+          // 新节点没有则删除
           hostRemove(prevChild.el)
-        } else { // 新节点有则移动
+        } else {
+          // 新节点有则移动
           if (newIndex >= maxNewIndexSoFar) {
             maxNewIndexSoFar = newIndex
           } else {
@@ -325,15 +328,24 @@ export function createRenderer(options) {
     })
   }
 
-  function processComponent(
-    n1,
-    n2: any,
-    container: any,
-    parentComponent,
-    anchor
-  ) {
-    // 去挂载节点
-    mountedComponent(n2, container, parentComponent, anchor)
+  function processComponent(n1, n2, container, parentComponent, anchor) {
+    if (!n1) {
+      // 去挂载节点
+      mountedComponent(n2, container, parentComponent, anchor)
+    } else {
+      updateComponent(n1, n2)
+    }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component)
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2
+      instance.update()
+    } else {
+      n2.el = n1.el
+      instance.vnode = n2
+    }
   }
 
   // 组件挂载
@@ -343,7 +355,10 @@ export function createRenderer(options) {
     parentComponent,
     anchor
   ) {
-    let instance = createComponentInstance(initialVnode, parentComponent) // 节点创建
+    let instance = (initialVnode.component = createComponentInstance(
+      initialVnode,
+      parentComponent
+    )) // 节点创建
     setupComponent(instance) // 初始化组件
     setupRenderEffect(instance, initialVnode, container, anchor) // 处理组件 判断类型
   }
@@ -354,7 +369,7 @@ export function createRenderer(options) {
     container: any,
     anchor
   ) {
-    effect(() => {
+    instance.update = effect(() => {
       const { proxy } = instance
       if (!instance.isMounted) {
         // 初始化
@@ -364,6 +379,12 @@ export function createRenderer(options) {
         instance.isMounted = true
       } else {
         // 更新
+        const { next, vnode } = instance
+        if (next) {
+          next.el = vnode.el
+          updateComponentPreRender(instance, next)
+        }
+
         const subTree = instance.render.call(proxy)
         const prevSubThree = instance.subTree
         instance.subTree = prevSubThree
@@ -375,6 +396,12 @@ export function createRenderer(options) {
   return {
     createApp: createdAppAPI(render),
   }
+}
+
+function updateComponentPreRender(instance, nextVnode) {
+  instance.vnode = nextVnode
+  instance.next = null
+  instance.props = nextVnode.props
 }
 
 // 返回的是数组中子序列的索引值
