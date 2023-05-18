@@ -4,6 +4,7 @@ import { ShapeFlags } from "../shared/ShapeFlags"
 import { createComponentInstance, setupComponent } from "./component"
 import { shouldUpdateComponent } from "./componentUpdateUtils"
 import { createdAppAPI } from "./createApp"
+import { queueJobs } from "./scheduler"
 import { Fragment, Text } from "./vnode"
 
 export function createRenderer(options) {
@@ -369,28 +370,36 @@ export function createRenderer(options) {
     container: any,
     anchor
   ) {
-    instance.update = effect(() => {
-      const { proxy } = instance
-      if (!instance.isMounted) {
-        // 初始化
-        const subTree = (instance.subTree = instance.render.call(proxy))
-        patch(null, subTree, container, instance, anchor)
-        initialVnode.el = subTree.el
-        instance.isMounted = true
-      } else {
-        // 更新
-        const { next, vnode } = instance
-        if (next) {
-          next.el = vnode.el
-          updateComponentPreRender(instance, next)
-        }
+    instance.update = effect(
+      () => {
+        const { proxy } = instance
+        if (!instance.isMounted) {
+          // 初始化
+          const subTree = (instance.subTree = instance.render.call(proxy))
+          patch(null, subTree, container, instance, anchor)
+          initialVnode.el = subTree.el
+          instance.isMounted = true
+        } else {
+          // 更新
+          const { next, vnode } = instance
+          if (next) {
+            next.el = vnode.el
+            updateComponentPreRender(instance, next)
+          }
 
-        const subTree = instance.render.call(proxy)
-        const prevSubThree = instance.subTree
-        instance.subTree = prevSubThree
-        patch(prevSubThree, subTree, container, instance, anchor)
+          const subTree = instance.render.call(proxy)
+          const prevSubThree = instance.subTree
+          instance.subTree = prevSubThree
+          patch(prevSubThree, subTree, container, instance, anchor)
+        }
+      },
+      {
+        scheduler() {
+          console.log("update - scheduler")
+          queueJobs(instance.update)
+        },
       }
-    })
+    )
   }
 
   return {
