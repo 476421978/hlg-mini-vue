@@ -23,10 +23,27 @@ function parseChildren(context) {
     if (/[a-z]/i.test(s[1])) {
       node = parseElement(context)
     }
+  } else {
+    node = parseText(context)
   }
 
   nodes.push(node)
+
   return nodes
+}
+
+function parseText(context) {
+  const content = parseTextData(context, context.source.length)
+  return {
+    type: NodeType.TEXT,
+    content,
+  }
+}
+
+function parseTextData(context: any, length) {
+  const content = context.source.slice(0, length)
+  advanceBy(context, length) // 推进下标
+  return content
 }
 
 function parseInterpolation(context) {
@@ -42,10 +59,11 @@ function parseInterpolation(context) {
   )
   // 去掉{{
   context.source = context.source.slice(openDelimiter.length) // message}}
+
   // 获取 中间内容长度
   const rawContentLength = closeIndex - openDelimiter.length // message的长度
 
-  const rawContent = context.source.slice(0, rawContentLength) // 获取message内容
+  const rawContent = parseTextData(context, rawContentLength) // 获取message内容
   const content = rawContent.trim()
 
   // 移动下标到最右边表示结束
