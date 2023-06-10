@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch",
     "build": "rollup -c rollup.config.js",
     "watch": "npm run build --watch"
   },
