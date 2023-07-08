@@ -1,5 +1,7 @@
 import { NodeType } from "./ast"
-import { helperMapName, TO_DISPLAY_STRING } from "./runtimeHelpers"
+import { CREATE_ELEMENT_VNODE, helperMapName, TO_DISPLAY_STRING } from "./runtimeHelpers"
+
+import { isString } from "../../shared/index"
 
 export function generate(ast) {
   const context = createCodegenContext()
@@ -13,6 +15,7 @@ export function generate(ast) {
 
   push(`function ${functionName}(${signature}) {`)
 
+  push("return ")
   genNode(ast.codegenNode, context)
 
   push(`}`)
@@ -39,17 +42,21 @@ function genFunctionPreamble(ast: any, context: any) {
 }
 
 function genNode(node, context) {
-  const { push } = context
-
   switch (node.type) {
     case NodeType.TEXT:
-      push(`return "${node.content}"`)
+      genText(node, context)
       break
     case NodeType.INTERPOLATION:
       genInterpolation(node, context)
       break
     case NodeType.SIMPLE_INTERPOLATION:
       genExpression(node, context)
+      break
+    case NodeType.ELEMENT:
+      genElement(node, context)
+      break
+    case NodeType.COMPOUND_EXPRESSION:
+      getCompoundExpression(node, context)
       break
     default:
       break
@@ -64,21 +71,47 @@ function createCodegenContext() {
     },
     helper(key) {
       return `_${helperMapName[key]}`
-    }
+    },
   }
   return context
 }
 
 function genInterpolation(node: any, context: any) {
-  const { push, helper} = context
-  push('return ')
+  const { push, helper } = context
   push(`${helper(TO_DISPLAY_STRING)}(`)
   genNode(node.content, context)
   push(")")
+}
+
+function genElement(node: any, context: any) {
+  const { push, helper } = context
+  const { tag, children } = node
+  push(`${helper(CREATE_ELEMENT_VNODE)}("${tag}"), null, `)
   
+  const child = children[0]
+  genNode(child, context)
+
+  push(")")
 }
 
 function genExpression(node: any, context: any) {
+  context.push(node.content, node)
+}
+
+function genText(node: any, context: any) {
   const { push } = context
-  push(`${node.content}`)
+  push(`'${node.content}'`)
+}
+
+function getCompoundExpression(node: any, context: any) {
+  const { push } = context
+  const children = node.children
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (isString(child)) {
+      push(child)
+    } else {
+      genNode(child, context)
+    }
+  }
 }

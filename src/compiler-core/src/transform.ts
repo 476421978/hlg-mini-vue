@@ -1,8 +1,9 @@
 import { NodeType } from "./ast"
-import { TO_DISPLAY_STRING } from "./runtimeHelpers"
+import { CREATE_ELEMENT_VNODE, TO_DISPLAY_STRING } from "./runtimeHelpers"
 
 export function transform(root, options = {}) {
   const context = createTransformContext(root, options)
+
   traverseNode(root, context)
 
   createRootCodegen(root)
@@ -15,14 +16,11 @@ function createRootCodegen(root: any) {
 }
 
 function traverseNode(node: any, context) {
-  // if (node.type === NodeType.TEXT) {
-  //   node.content = node.content + " mini-vue"
-  // }
   // 优化变成外部扩展
   const nodeTransforms = context.nodeTransforms
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i]
-    transform(node)
+    transform(node, context)
   }
 
   switch (node.type) {
@@ -31,7 +29,7 @@ function traverseNode(node: any, context) {
       break
 
     case NodeType.ROOT:
-    case NodeType.ELEMENT: // root 
+    case NodeType.ELEMENT: // root
       traverseChildren(node, context)
       break
 

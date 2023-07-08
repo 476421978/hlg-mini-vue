@@ -1,7 +1,9 @@
 import { generate } from "../src/codegen"
 import { baseParse } from "../src/parse"
 import { transform } from "../src/transform"
-import { transformsExpression } from "../src/transforms/transformsExpression"
+import { transformElement } from "../src/transforms/transformElement"
+import { transformExpression } from "../src/transforms/transformExpression"
+import { transformText } from "../src/transforms/transformText"
 
 describe("codegen", () => {
   it("string", () => {
@@ -15,8 +17,18 @@ describe("codegen", () => {
   it("interpolation", () => {
     const ast = baseParse("{{message}}")
     transform(ast, {
-      nodeTransforms: [transformsExpression],
+      nodeTransforms: [transformExpression],
     })
+    const { code } = generate(ast)
+    expect(code).toMatchSnapshot()
+  })
+
+  it.only("element", () => {
+    const ast: any = baseParse("<div>hi,{{message}}</div>")
+    transform(ast, {
+      nodeTransforms: [transformElement, transformText],
+    })
+    console.log("ast-----", ast, ast.codegenNode.children)
     const { code } = generate(ast)
     expect(code).toMatchSnapshot()
   })
