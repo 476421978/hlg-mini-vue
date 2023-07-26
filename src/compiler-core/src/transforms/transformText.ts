@@ -1,8 +1,8 @@
-import { NodeType } from "../ast"
+import { NodeTypes } from "../ast"
 import { isText } from "../utils"
 
 export function transformText(node, context) {
-  if (node.type === NodeType.ELEMENT) {
+  if (node.type === NodeTypes.ELEMENT) {
     // 在 exit 的时期执行
     // 下面的逻辑会改变 ast 树
     // 有些逻辑是需要在改变之前做处理的
@@ -28,7 +28,7 @@ export function transformText(node, context) {
             // currentContainer 的目的是把相邻的节点都放到一个 容器内
             if (!currentContainer) {
               currentContainer = children[i] = {
-                type: NodeType.COMPOUND_EXPRESSION,
+                type: NodeTypes.COMPOUND_EXPRESSION,
                 // loc: child.loc,
                 children: [child],
               }

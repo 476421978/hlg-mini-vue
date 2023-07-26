@@ -1,4 +1,4 @@
-import { NodeType } from "../src/ast"
+import { NodeTypes } from "../src/ast"
 import { baseParse } from "../src/parse"
 
 describe("Parse", () => {
@@ -6,9 +6,9 @@ describe("Parse", () => {
     test("simple interpolation", () => {
       const ast: any = baseParse("{{ message }}")
       expect(ast.children[0]).toStrictEqual({
-        type: NodeType.INTERPOLATION,
+        type: NodeTypes.INTERPOLATION,
         content: {
-          type: NodeType.SIMPLE_INTERPOLATION,
+          type: NodeTypes.SIMPLE_INTERPOLATION,
           content: "message",
         },
       })
@@ -19,7 +19,7 @@ describe("Parse", () => {
     it("simple element div", () => {
       const ast: any = baseParse("<div></div>")
       expect(ast.children[0]).toStrictEqual({
-        type: NodeType.ELEMENT,
+        type: NodeTypes.ELEMENT,
         tag: "div",
         children: [],
       })
@@ -30,7 +30,7 @@ describe("Parse", () => {
     it("simple text", () => {
       const ast: any = baseParse("some text")
       expect(ast.children[0]).toStrictEqual({
-        type: NodeType.TEXT,
+        type: NodeTypes.TEXT,
         content: "some text",
       })
     })
@@ -38,17 +38,17 @@ describe("Parse", () => {
     test("hello world", () => {
       const ast: any = baseParse("<div>hi,{{message}}</div>")
       expect(ast.children[0]).toStrictEqual({
-        type: NodeType.ELEMENT,
+        type: NodeTypes.ELEMENT,
         tag: "div",
         children: [
           {
-            type: NodeType.TEXT,
+            type: NodeTypes.TEXT,
             content: "hi,",
           },
           {
-            type: NodeType.INTERPOLATION,
+            type: NodeTypes.INTERPOLATION,
             content: {
-              type: NodeType.SIMPLE_INTERPOLATION,
+              type: NodeTypes.SIMPLE_INTERPOLATION,
               content: "message",
             },
           },
@@ -59,23 +59,23 @@ describe("Parse", () => {
     test("Nest element", () => {
       const ast: any = baseParse("<div><p>hi</p>{{message}}</div>")
       expect(ast.children[0]).toStrictEqual({
-        type: NodeType.ELEMENT,
+        type: NodeTypes.ELEMENT,
         tag: "div",
         children: [
           {
-            type: NodeType.ELEMENT,
+            type: NodeTypes.ELEMENT,
             tag: "p",
             children: [
               {
-                type: NodeType.TEXT,
+                type: NodeTypes.TEXT,
                 content: "hi",
               },
             ],
           },
           {
-            type: NodeType.INTERPOLATION,
+            type: NodeTypes.INTERPOLATION,
             content: {
-              type: NodeType.SIMPLE_INTERPOLATION,
+              type: NodeTypes.SIMPLE_INTERPOLATION,
               content: "message",
             },
           },

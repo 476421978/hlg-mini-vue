@@ -1,4 +1,4 @@
-import { NodeType } from "./ast"
+import { NodeTypes } from "./ast"
 
 const enum TagType {
   START,
@@ -50,7 +50,7 @@ function parseText(context) {
   const content = parseTextData(context, endIndex)
 
   return {
-    type: NodeType.TEXT,
+    type: NodeTypes.TEXT,
     content,
   }
 }
@@ -88,9 +88,9 @@ function parseInterpolation(context) {
   advanceBy(context, closeDelimiter.length)
 
   return {
-    type: NodeType.INTERPOLATION,
+    type: NodeTypes.INTERPOLATION,
     content: {
-      type: NodeType.SIMPLE_INTERPOLATION,
+      type: NodeTypes.SIMPLE_INTERPOLATION,
       content: content,
     },
   }
@@ -105,7 +105,7 @@ function createParseContext(content: any) {
 function createRoot(children) {
   return {
     children,
-    type: NodeType.ROOT
+    type: NodeTypes.ROOT
   }
 }
 
@@ -153,7 +153,7 @@ function parseTag(context: any, type: TagType) {
   if (type === TagType.END) return
 
   return {
-    type: NodeType.ELEMENT,
+    type: NodeTypes.ELEMENT,
     tag,
   }
 }

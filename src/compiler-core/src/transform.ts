@@ -1,4 +1,4 @@
-import { NodeType } from "./ast"
+import { NodeTypes } from "./ast"
 import { CREATE_ELEMENT_VNODE, TO_DISPLAY_STRING } from "./runtimeHelpers"
 
 export function transform(root, options = {}) {
@@ -24,12 +24,12 @@ function traverseNode(node: any, context) {
   }
 
   switch (node.type) {
-    case NodeType.INTERPOLATION:
+    case NodeTypes.INTERPOLATION:
       context.helper(TO_DISPLAY_STRING)
       break
 
-    case NodeType.ROOT:
-    case NodeType.ELEMENT: // root
+    case NodeTypes.ROOT:
+    case NodeTypes.ELEMENT: // root
       traverseChildren(node, context)
       break
 

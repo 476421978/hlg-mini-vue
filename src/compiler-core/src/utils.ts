@@ -1,5 +1,5 @@
-import { NodeType } from "./ast";
+import { NodeTypes } from "./ast";
 
 export function isText(node) {
-  return node.type === NodeType.INTERPOLATION || node.type === NodeType.TEXT;
+  return node.type === NodeTypes.INTERPOLATION || node.type === NodeTypes.TEXT;
 }

@@ -133,7 +133,7 @@ export function createRenderer(options) {
     let e1 = c1.length - 1
     let e2 = l2 - 1
 
-    function isSomeVNodeType(n1, n2) {
+    function isSomeVNodeTypes(n1, n2) {
       return n1.type === n2.type && n1.key === n2.key
     }
 
@@ -141,7 +141,7 @@ export function createRenderer(options) {
     while (i <= e1 && i <= e2) {
       const n1 = c1[i]
       const n2 = c2[i]
-      if (isSomeVNodeType(n1, n2)) {
+      if (isSomeVNodeTypes(n1, n2)) {
         patch(n1, n2, container, parentComponent, parentAnchor)
       } else {
         break
@@ -153,7 +153,7 @@ export function createRenderer(options) {
     while (i <= e1 && i <= e2) {
       const n1 = c1[e1]
       const n2 = c2[e2]
-      if (isSomeVNodeType(n1, n2)) {
+      if (isSomeVNodeTypes(n1, n2)) {
         patch(n1, n2, container, parentComponent, parentAnchor)
       } else {
         break
@@ -214,7 +214,7 @@ export function createRenderer(options) {
         } else {
           // 存在则历遍对比新节点数组
           for (let j = s2; j <= e2; j++) {
-            if (isSomeVNodeType(prevChild, c2[j])) {
+            if (isSomeVNodeTypes(prevChild, c2[j])) {
               // 获取旧值在新节点的位置
               newIndex = j
               break

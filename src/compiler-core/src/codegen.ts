@@ -1,4 +1,4 @@
-import { NodeType } from "./ast"
+import { NodeTypes } from "./ast"
 import { CREATE_ELEMENT_VNODE, helperMapName, TO_DISPLAY_STRING } from "./runtimeHelpers"
 
 import { isString } from "../../shared/index"
@@ -43,19 +43,19 @@ function genFunctionPreamble(ast: any, context: any) {
 
 function genNode(node, context) {
   switch (node.type) {
-    case NodeType.TEXT:
+    case NodeTypes.TEXT:
       genText(node, context)
       break
-    case NodeType.INTERPOLATION:
+    case NodeTypes.INTERPOLATION:
       genInterpolation(node, context)
       break
-    case NodeType.SIMPLE_INTERPOLATION:
+    case NodeTypes.SIMPLE_INTERPOLATION:
       genExpression(node, context)
       break
-    case NodeType.ELEMENT:
+    case NodeTypes.ELEMENT:
       genElement(node, context)
       break
-    case NodeType.COMPOUND_EXPRESSION:
+    case NodeTypes.COMPOUND_EXPRESSION:
       getCompoundExpression(node, context)
       break
     default:

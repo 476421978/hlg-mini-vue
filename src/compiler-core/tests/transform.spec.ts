@@ -1,4 +1,4 @@
-import { NodeType } from "../src/ast"
+import { NodeTypes } from "../src/ast"
 import { baseParse } from "../src/parse"
 import { transform } from "../src/transform"
 
@@ -9,7 +9,7 @@ describe("transform", () => {
     const children = ast.children[0].children[0]
 
     const plugin = (node) => {
-      if (node.type === NodeType.TEXT) {
+      if (node.type === NodeTypes.TEXT) {
         node.content = node.content + " mini-vue"
       }
     }
