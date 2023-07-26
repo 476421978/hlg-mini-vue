@@ -56,7 +56,7 @@ function genNode(node, context) {
       genElement(node, context)
       break
     case NodeTypes.COMPOUND_EXPRESSION:
-      getCompoundExpression(node, context)
+      genCompoundExpression(node, context)
       break
     default:
       break
@@ -83,15 +83,48 @@ function genInterpolation(node: any, context: any) {
   push(")")
 }
 
-function genElement(node: any, context: any) {
-  const { push, helper } = context
-  const { tag, children } = node
-  push(`${helper(CREATE_ELEMENT_VNODE)}("${tag}"), null, `)
-  
-  const child = children[0]
-  genNode(child, context)
+function genNodeList(nodes: any, context: any) {
+  const { push } = context
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
 
-  push(")")
+    if (isString(node)) {
+      push(`${node}`)
+    } else {
+      genNode(node, context)
+    }
+    // node 和 node 之间需要加上 逗号(,)
+    // 但是最后一个不需要 "div", [props], [children]
+    if (i < nodes.length - 1) {
+      push(", ")
+    }
+  }
+}
+
+function genNullableArgs(args) {
+  // 把末尾为null 的都删除掉
+  // vue3源码中，后面可能会包含 patchFlag、dynamicProps 等编译优化的信息
+  // 而这些信息有可能是不存在的，所以在这边的时候需要删除掉
+  let i = args.length
+  // 这里 i-- 用的还是特别的巧妙的
+  // 当为0 的时候自然就退出循环了
+  while (i--) {
+    if (args[i] != null) break
+  }
+
+  // 把为 falsy 的值都替换成 "null"
+  return args.slice(0, i + 1).map((arg) => arg || "null")
+}
+
+function genElement(node, context) {
+  const { push, helper } = context
+  const { tag, props, children } = node
+
+  push(`${helper(CREATE_ELEMENT_VNODE)}(`)
+
+  genNodeList(genNullableArgs([tag, props, children]), context)
+
+  push(`)`)
 }
 
 function genExpression(node: any, context: any) {
@@ -103,7 +136,7 @@ function genText(node: any, context: any) {
   push(`'${node.content}'`)
 }
 
-function getCompoundExpression(node: any, context: any) {
+function genCompoundExpression(node: any, context: any) {
   const { push } = context
   const children = node.children
   for (let i = 0; i < children.length; i++) {

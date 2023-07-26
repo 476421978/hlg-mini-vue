@@ -14,3 +14,13 @@ exports[`codegen string 1`] = `
 "
 return function render(_ctx, _cache) {return 'hi'}"
 `;
+
+exports[`element and interpolation 1`] = `
+"
+return function render(_ctx, _cache) {return _createElementVNode(div, null, )}"
+`;
+
+exports[`interpolation module 1`] = `
+"{ toDisplayString:_toDisplayString } = Vue
+return function render(_ctx, _cache) {return _toDisplayString(_ctx.hello)}"
+`;
